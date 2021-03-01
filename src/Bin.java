@@ -1,14 +1,15 @@
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class Bin {
     private int taille;
-    private ArrayList<Item> itemList = new ArrayList<>();
+    private ArrayList<Integer> itemList = new ArrayList<>();
 
     public Bin(int taille) {
         this.taille = taille;
     }
 
-    public Bin(int taille, ArrayList<Item> itemList) {
+    public Bin(int taille, ArrayList<Integer> itemList) {
         this.taille = taille;
         this.itemList = itemList;
     }
@@ -21,11 +22,12 @@ public class Bin {
         this.taille = taille;
     }
 
-    public ArrayList<Item> getItemList() {
+    public ArrayList<Integer> getItemList() {
         return itemList;
     }
 
-    public void setItemList(ArrayList<Item> itemList) {
+    public void setItemList(ArrayList<Integer> itemList) {
         this.itemList = itemList;
     }
+
 }
