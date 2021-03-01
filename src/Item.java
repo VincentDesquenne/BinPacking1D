@@ -1,17 +1,8 @@
 public class Item {
-    private int id, taille;
+    private int taille;
 
-    public Item(int id, int taille) {
-        this.id = id;
+    public Item(int taille) {
         this.taille = taille;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public int getTaille() {

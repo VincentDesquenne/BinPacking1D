@@ -17,9 +17,11 @@ import java.util.TreeMap;
 
 public class main {
     private static BufferedReader bufferedR;
+    private static Bin bin;
     private static boolean initDonné = false;
     private static int nbBin = 0; // En attendant comme j'ai pas la classe
     private static int nbItems = 0; // tu changeras avec la classe
+    private static ArrayList<Integer> itemList = new ArrayList<>();
 
     public static void lireFichier(String fichier) {
         try {
@@ -29,13 +31,16 @@ public class main {
             while ((line = bufferedR.readLine()) != null) {
                 mots = line.split(" ");
                 if (!initDonné) {
-                    nbBin = Integer.parseInt(mots[0]);
+                    bin = new Bin(Integer.parseInt(mots[0]));
                     nbItems = Integer.parseInt(mots[1]);
                     initDonné = true;
+                    line = bufferedR.readLine();
+                    mots = line.split(" ");
                 }
+
                     for (String wrd : mots) {
                         if (wrd.matches("[+-]?\\d*(\\.\\d+)?")) {
-                            System.out.println(wrd);
+                            itemList.add(Integer.parseInt(wrd));
                         }
 
                     }
@@ -57,5 +62,8 @@ public class main {
         Scanner sc = new Scanner(System.in);
         String fichier = sc.nextLine();
         lireFichier("src/data/" + fichier + ".txt");
+        for (int i=0; i < itemList.size(); i++) {
+            System.out.println(itemList.get(i));
+        }
     }
 }
