@@ -16,6 +16,7 @@ public class main {
     private static int tailleBin = 0; // En attendant comme j'ai pas la classe
     private static int nbItems = 0; // tu changeras avec la classe
     private static ArrayList<Integer> itemList = new ArrayList<>();
+    private static int borneInferieur = 0;
 
     public static void lireFichier(String fichier) {
         try {
@@ -48,13 +49,20 @@ public class main {
 
     }
 
+    public static void calculBorneInferieure(){
+        int sommeTailleItems = itemList.stream().collect(Collectors.summingInt(Integer::intValue));
+        borneInferieur = sommeTailleItems / tailleBin;
+    }
+
     public static void firstFitDecreasing() {
         int compteur = 1;
+        boolean isNewBin = true;
         // Tri selon ordre croissant
         itemList = (ArrayList<Integer>) itemList.stream().sorted().collect(Collectors.toList());
         // Inverse la liste
         Collections.reverse(itemList);
         for (int i = 0; i < itemList.size(); i++) {
+            isNewBin = true;
             // Si c'est le premier element on initalise la hashmap
             if (binList.size() == 0) {
                 Bin binTmp = new Bin(tailleBin);
@@ -62,15 +70,22 @@ public class main {
                 binList.put(compteur, binTmp);
             }
             // si l'item peut rentrer dans le bin on le met
-            if (binList.get(compteur).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + itemList.get(i) <= tailleBin) {
-                    binList.get(compteur).getItemList().add(itemList.get(i));
-            } else { // sinon on crée un autre bin et on incremente compteur pour pointer sur ce nouveau bin
+            for(Map.Entry<Integer, Bin> mapentry : binList.entrySet()) {
+
+                if (mapentry.getValue().getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + itemList.get(i) <= tailleBin) {
+                    mapentry.getValue().getItemList().add(itemList.get(i));
+                    isNewBin = false;
+                    break;
+                }
+            }
+            if(isNewBin) { // sinon on crée un autre bin et on incremente compteur pour pointer sur ce nouveau bin
                 compteur++;
                 Bin newBin = new Bin(tailleBin);
                 newBin.setItemList(new ArrayList<>());
                 newBin.getItemList().add(itemList.get(i));
                 binList.put(compteur, newBin);
             }
+
         }
     }
 
@@ -80,6 +95,7 @@ public class main {
             for (int i = 0; i < mapentry.getValue().getItemList().size(); i++) {
                 System.out.println("ITEM : " + mapentry.getValue().getItemList().get(i));
             }
+            System.out.println("----------------------");
         }
     }
 
@@ -90,6 +106,8 @@ public class main {
         lireFichier("src/data/" + fichier + ".txt");
         firstFitDecreasing();
         System.out.println("Nombre de bin : " + binList.size());
+        calculBorneInferieure();
+        System.out.println("Borne inférieure : " + borneInferieur);
         afficherBin();
 
     }
