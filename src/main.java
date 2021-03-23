@@ -7,6 +7,12 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.lang.*;
+import com.google.ortools.Loader;
+import com.google.ortools.linearsolver.MPConstraint;
+import com.google.ortools.linearsolver.MPObjective;
+import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPVariable;
 
 public class main {
     private static BufferedReader bufferedR;
@@ -17,6 +23,7 @@ public class main {
     private static int nbItems = 0; // tu changeras avec la classe
     private static ArrayList<Integer> itemList = new ArrayList<>();
     private static int borneInferieur = 0;
+    private static int timeLimit = 800000;
 
     public static void lireFichier(String fichier) {
         try {
@@ -27,7 +34,9 @@ public class main {
                 mots = line.split(" ");
                 if (!initDonné) {
                     tailleBin = Integer.parseInt(mots[0]);
+                    System.out.println("La taille d'un bin est de " + tailleBin);
                     nbItems = Integer.parseInt(mots[1]);
+                    System.out.println("Il y a " + nbItems + " items dans le fichier");
                     initDonné = true;
                     line = bufferedR.readLine();
                     mots = line.split(" ");
@@ -51,6 +60,7 @@ public class main {
 
     public static void calculBorneInferieure(){
         int sommeTailleItems = itemList.stream().collect(Collectors.summingInt(Integer::intValue));
+        System.out.println(sommeTailleItems/tailleBin);
         borneInferieur = sommeTailleItems / tailleBin;
     }
 
@@ -99,6 +109,68 @@ public class main {
         }
     }
 
+    public static void linearSolver() {
+        String str;
+        MPSolver solver;
+        Loader.loadNativeLibraries();
+        solver = new MPSolver("BinPacking1d", MPSolver.OptimizationProblemType.SAT_INTEGER_PROGRAMMING);
+        //solver.setTimeLimit(timeLimit);
+
+        System.out.println("Création des variables ... ");
+        MPVariable[][] x = new MPVariable[nbItems][nbItems];
+        //x : la variable booléenne
+        //Vrai si l'item i est dans le bin j
+        //Faux sinon
+        for(int i = 0; i < nbItems; i++){
+            for(int j = 0; j < nbItems; j++){
+                str = "X[" + i + "," + j + "]";
+                x[i][j] = solver.makeBoolVar(str);
+            }
+        }
+        MPVariable[] y = new MPVariable[nbItems];
+        for (int j = 0; j < nbItems; j++){
+            str = "Y" + j;
+            y[j] = solver.makeBoolVar(str);
+        }
+        System.out.println("#" + solver.numVariables());
+
+        // constraints
+        System.out.println("Création des contraintes ... ");
+        MPConstraint[] constraint1 = new MPConstraint[nbItems];
+        for (int i = 0; i < nbItems; i++){
+            constraint1[i] = solver.makeConstraint(1,1);
+            for(int j = 0; j < nbItems; j++){
+                constraint1[i].setCoefficient(x[i][j],1);
+            }
+        }
+        MPConstraint[] constraint2 = new MPConstraint[nbItems];
+        for(int j = 0; j < nbItems; j++){
+            constraint2[j] = solver.makeConstraint(-tailleBin, 0);
+            for (int i = 0; i < nbItems; i++){
+                constraint2[j].setCoefficient(x[i][j], itemList.get(i));
+                constraint2[j].setCoefficient(y[j], -tailleBin);
+            }
+        }
+        System.out.println("#" + solver.numConstraints());
+
+
+        MPObjective objective = solver.objective();
+        for (int i = 0; i < nbItems; i++){
+            objective.setCoefficient(y[i],1);
+        }
+        objective.setMinimization();
+
+        long begin = System.currentTimeMillis();
+        MPSolver.ResultStatus statut = solver.solve();
+        long time = System.currentTimeMillis() - begin;
+        if(statut == MPSolver.ResultStatus.OPTIMAL){
+            System.out.println("Solution optimale trouvée " + (int)objective.value());
+            System.out.println("Trouvé en : " + time + " millisecondes");
+        }
+    }
+
+
+
     public static void main(String[] args) {
         System.out.println("Quel fichier voulez vous tester ?");
         Scanner sc = new Scanner(System.in);
@@ -108,7 +180,8 @@ public class main {
         System.out.println("Nombre de bin : " + binList.size());
         calculBorneInferieure();
         System.out.println("Borne inférieure : " + borneInferieur);
-        afficherBin();
+        //afficherBin();
+        linearSolver();
 
     }
 }
