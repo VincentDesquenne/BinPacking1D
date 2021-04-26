@@ -25,8 +25,16 @@ public class main {
     private static int borneInferieur = 0;
     private static int timeLimit = 800000;
 
+    private static void reset() {
+        tailleBin = 0;
+        nbItems = 0;
+        itemList = new ArrayList<>();
+        initDonné = false;
+    }
+
     public static void lireFichier(String fichier) {
         try {
+            reset();
             bufferedR = new BufferedReader(new InputStreamReader(new FileInputStream(fichier), "utf-8"));
             String line;
             String[] mots = null;
