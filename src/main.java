@@ -177,18 +177,47 @@ public class main {
         }
     }
 
+    public static void testAllFilesWithFirstFitDecreasing(){
+        ArrayList<String> nomFichierList = new ArrayList<>();
+        nomFichierList.add("00");
+        nomFichierList.add("01");
+        nomFichierList.add("02");
+        nomFichierList.add("03");
+        nomFichierList.add("04");
+        nomFichierList.add("05");
+        nomFichierList.add("06");
+        nomFichierList.add("11");
+        nomFichierList.add("12");
+        nomFichierList.add("13");
+        nomFichierList.add("14");
+        nomFichierList.add("21");
+        nomFichierList.add("31");
+        for (int i = 0; i < nomFichierList.size(); i++) {
+            System.out.println("Test avec FirstFitDecreasing pour le fichier : binpack1d_" + nomFichierList.get(i));
+            lireFichier("src/data/binpack1d_" + nomFichierList.get(i) + ".txt");
+            firstFitDecreasing();
+            System.out.println("----------------------");
+            System.out.println("Nombre de bin : " + binList.size());
+            calculBorneInferieure();
+            System.out.println("Borne inférieure : " + borneInferieur);
+            System.out.println("----------------------");
+
+        }
+    }
+
 
 
     public static void main(String[] args) {
-        System.out.println("Quel fichier voulez vous tester ?");
-        Scanner sc = new Scanner(System.in);
-        String fichier = sc.nextLine();
-        lireFichier("src/data/" + fichier + ".txt");
-        firstFitDecreasing();
-        System.out.println("Nombre de bin : " + binList.size());
-        calculBorneInferieure();
-        System.out.println("Borne inférieure : " + borneInferieur);
-        //afficherBin();
+        testAllFilesWithFirstFitDecreasing();
+//        System.out.println("Quel fichier voulez vous tester ?");
+//        Scanner sc = new Scanner(System.in);
+//        String fichier = sc.nextLine();
+//        lireFichier("src/data/" + fichier + ".txt");
+//        firstFitDecreasing();
+//        System.out.println("Nombre de bin : " + binList.size());
+//        calculBorneInferieure();
+//        System.out.println("Borne inférieure : " + borneInferieur);
+//        //afficherBin();
         linearSolver();
 
     }
