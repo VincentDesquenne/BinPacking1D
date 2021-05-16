@@ -68,8 +68,10 @@ public class main {
 
     public static void calculBorneInferieure(){
         int sommeTailleItems = itemList.stream().collect(Collectors.summingInt(Integer::intValue));
-        System.out.println(sommeTailleItems/tailleBin);
         borneInferieur = sommeTailleItems / tailleBin;
+        if (sommeTailleItems % tailleBin != 0) {
+            borneInferieur++;
+        }
     }
 
     public static void firstFitDecreasing() {
@@ -206,7 +208,6 @@ public class main {
     }
 
 
-
     public static void main(String[] args) {
         testAllFilesWithFirstFitDecreasing();
 //        System.out.println("Quel fichier voulez vous tester ?");
@@ -218,6 +219,7 @@ public class main {
 //        calculBorneInferieure();
 //        System.out.println("Borne inférieure : " + borneInferieur);
 //        //afficherBin();
+        lireFichier("src/data/binpack1d_01.txt");
         linearSolver();
 
     }
