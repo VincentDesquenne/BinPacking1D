@@ -30,6 +30,7 @@ public class main {
         nbItems = 0;
         itemList = new ArrayList<>();
         initDonné = false;
+        binList = new HashMap<Integer, Bin>();
     }
 
     public static void lireFichier(String fichier) {
@@ -203,7 +204,8 @@ public class main {
             calculBorneInferieure();
             System.out.println("Borne inférieure : " + borneInferieur);
             System.out.println("----------------------");
-
+            afficherBin();
+            System.out.println("----------------------");
         }
     }
 
@@ -219,8 +221,8 @@ public class main {
 //        calculBorneInferieure();
 //        System.out.println("Borne inférieure : " + borneInferieur);
 //        //afficherBin();
-        lireFichier("src/data/binpack1d_01.txt");
-        linearSolver();
+//        lireFichier("src/data/binpack1d_01.txt");
+//        linearSolver();
 
     }
 }
