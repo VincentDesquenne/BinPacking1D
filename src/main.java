@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.lang.*;
+
 import com.google.ortools.Loader;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
@@ -67,7 +68,7 @@ public class main {
 
     }
 
-    public static void calculBorneInferieure(){
+    public static void calculBorneInferieure() {
         int sommeTailleItems = itemList.stream().collect(Collectors.summingInt(Integer::intValue));
         borneInferieur = sommeTailleItems / tailleBin;
         if (sommeTailleItems % tailleBin != 0) {
@@ -91,7 +92,7 @@ public class main {
                 binList.put(compteur, binTmp);
             }
             // si l'item peut rentrer dans le bin on le met
-            for(Map.Entry<Integer, Bin> mapentry : binList.entrySet()) {
+            for (Map.Entry<Integer, Bin> mapentry : binList.entrySet()) {
 
                 if (mapentry.getValue().getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + itemList.get(i) <= tailleBin) {
                     mapentry.getValue().getItemList().add(itemList.get(i));
@@ -99,7 +100,7 @@ public class main {
                     break;
                 }
             }
-            if(isNewBin) { // sinon on crée un autre bin et on incremente compteur pour pointer sur ce nouveau bin
+            if (isNewBin) { // sinon on crée un autre bin et on incremente compteur pour pointer sur ce nouveau bin
                 compteur++;
                 Bin newBin = new Bin(tailleBin);
                 newBin.setItemList(new ArrayList<>());
@@ -132,14 +133,14 @@ public class main {
         //x : la variable booléenne
         //Vrai si l'item i est dans le bin j
         //Faux sinon
-        for(int i = 0; i < nbItems; i++){
-            for(int j = 0; j < nbItems; j++){
+        for (int i = 0; i < nbItems; i++) {
+            for (int j = 0; j < nbItems; j++) {
                 str = "X[" + i + "," + j + "]";
                 x[i][j] = solver.makeBoolVar(str);
             }
         }
         MPVariable[] y = new MPVariable[nbItems];
-        for (int j = 0; j < nbItems; j++){
+        for (int j = 0; j < nbItems; j++) {
             str = "Y" + j;
             y[j] = solver.makeBoolVar(str);
         }
@@ -148,16 +149,16 @@ public class main {
         // constraints
         System.out.println("Création des contraintes ... ");
         MPConstraint[] constraint1 = new MPConstraint[nbItems];
-        for (int i = 0; i < nbItems; i++){
-            constraint1[i] = solver.makeConstraint(1,1);
-            for(int j = 0; j < nbItems; j++){
-                constraint1[i].setCoefficient(x[i][j],1);
+        for (int i = 0; i < nbItems; i++) {
+            constraint1[i] = solver.makeConstraint(1, 1);
+            for (int j = 0; j < nbItems; j++) {
+                constraint1[i].setCoefficient(x[i][j], 1);
             }
         }
         MPConstraint[] constraint2 = new MPConstraint[nbItems];
-        for(int j = 0; j < nbItems; j++){
+        for (int j = 0; j < nbItems; j++) {
             constraint2[j] = solver.makeConstraint(-tailleBin, 0);
-            for (int i = 0; i < nbItems; i++){
+            for (int i = 0; i < nbItems; i++) {
                 constraint2[j].setCoefficient(x[i][j], itemList.get(i));
                 constraint2[j].setCoefficient(y[j], -tailleBin);
             }
@@ -166,21 +167,21 @@ public class main {
 
 
         MPObjective objective = solver.objective();
-        for (int i = 0; i < nbItems; i++){
-            objective.setCoefficient(y[i],1);
+        for (int i = 0; i < nbItems; i++) {
+            objective.setCoefficient(y[i], 1);
         }
         objective.setMinimization();
 
         long begin = System.currentTimeMillis();
         MPSolver.ResultStatus statut = solver.solve();
         long time = System.currentTimeMillis() - begin;
-        if(statut == MPSolver.ResultStatus.OPTIMAL){
-            System.out.println("Solution optimale trouvée " + (int)objective.value());
+        if (statut == MPSolver.ResultStatus.OPTIMAL) {
+            System.out.println("Solution optimale trouvée " + (int) objective.value());
             System.out.println("Trouvé en : " + time + " millisecondes");
         }
     }
 
-    public static void testAllFilesWithFirstFitDecreasing(){
+    public static void testAllFilesWithFirstFitDecreasing() {
         ArrayList<String> nomFichierList = new ArrayList<>();
         nomFichierList.add("00");
         nomFichierList.add("01");
@@ -196,9 +197,11 @@ public class main {
         nomFichierList.add("21");
         nomFichierList.add("31");
         for (int i = 0; i < nomFichierList.size(); i++) {
-            System.out.println("Test avec FirstFitDecreasing pour le fichier : binpack1d_" + nomFichierList.get(i));
+            //System.out.println("Test avec FirstFitDecreasing pour le fichier : binpack1d_" + nomFichierList.get(i));
+            System.out.println("Test avec FirstFitRandom pour le fichier : binpack1d_" + nomFichierList.get(i));
             lireFichier("src/data/binpack1d_" + nomFichierList.get(i) + ".txt");
-            firstFitDecreasing();
+            //firstFitDecreasing();
+            firstFitRandom();
             System.out.println("----------------------");
             System.out.println("Nombre de bin : " + binList.size());
             calculBorneInferieure();
@@ -206,6 +209,52 @@ public class main {
             System.out.println("----------------------");
             afficherBin();
             System.out.println("----------------------");
+            //randomGenerateA();
+            //System.out.println("Générateur aléatoire A : " + binList.size());
+
+        }
+    }
+
+    public static void randomGenerateA() {
+        int compteur = 1;
+        for (int i = 0; i < nbItems; i++){
+            compteur++;
+            Bin newBin = new Bin(tailleBin);
+            newBin.setItemList(new ArrayList<>());
+            newBin.getItemList().add(itemList.get(i));
+            binList.put(compteur, newBin);
+        }
+    }
+
+    public static void firstFitRandom() {
+        int compteur = 1;
+        boolean isNewBin = true;
+        Collections.shuffle(itemList);
+        for (int i = 0; i < itemList.size(); i++) {
+            isNewBin = true;
+            // Si c'est le premier element on initalise la hashmap
+            if (binList.size() == 0) {
+                Bin binTmp = new Bin(tailleBin);
+                binTmp.setItemList(new ArrayList<>());
+                binList.put(compteur, binTmp);
+            }
+            // si l'item peut rentrer dans le bin on le met
+            for (Map.Entry<Integer, Bin> mapentry : binList.entrySet()) {
+
+                if (mapentry.getValue().getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + itemList.get(i) <= tailleBin) {
+                    mapentry.getValue().getItemList().add(itemList.get(i));
+                    isNewBin = false;
+                    break;
+                }
+            }
+            if (isNewBin) { // sinon on crée un autre bin et on incremente compteur pour pointer sur ce nouveau bin
+                compteur++;
+                Bin newBin = new Bin(tailleBin);
+                newBin.setItemList(new ArrayList<>());
+                newBin.getItemList().add(itemList.get(i));
+                binList.put(compteur, newBin);
+            }
+
         }
     }
 
