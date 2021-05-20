@@ -200,12 +200,17 @@ public class main {
             //System.out.println("Test avec FirstFitDecreasing pour le fichier : binpack1d_" + nomFichierList.get(i));
             System.out.println("Test avec FirstFitRandom pour le fichier : binpack1d_" + nomFichierList.get(i));
             lireFichier("src/data/binpack1d_" + nomFichierList.get(i) + ".txt");
-            //firstFitDecreasing();
-            firstFitRandom();
+            firstFitDecreasing();
+            //firstFitRandom();
             System.out.println("----------------------");
             System.out.println("Nombre de bin : " + binList.size());
             calculBorneInferieure();
             System.out.println("Borne inférieure : " + borneInferieur);
+            System.out.println("----------------------");
+            afficherBin();
+            System.out.println("----------------------");
+            voisinageA();
+            System.out.println("Voisinage A : ");
             System.out.println("----------------------");
             afficherBin();
             System.out.println("----------------------");
@@ -217,7 +222,7 @@ public class main {
 
     public static void randomGenerateA() {
         int compteur = 1;
-        for (int i = 0; i < nbItems; i++){
+        for (int i = 0; i < nbItems; i++) {
             compteur++;
             Bin newBin = new Bin(tailleBin);
             newBin.setItemList(new ArrayList<>());
@@ -258,6 +263,32 @@ public class main {
         }
     }
 
+    public static void voisinageA(){
+        Random r = new Random();
+        ArrayList<Integer> listB = new ArrayList<>(binList.keySet());
+        int random = r.nextInt(listB.size());
+        boolean trouve = false;
+        while(!trouve && !listB.isEmpty()){
+            for(int i=0; i<binList.get(listB.get(random)).getItemList().size(); i++){
+                for(int j = 1; j<binList.keySet().size(); j++){
+                    if(binList.get(j).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + binList.get(listB.get(random)).getItemList().get(i) <= tailleBin && binList.get(j) != binList.get(listB.get(random))){
+                        binList.get(j).getItemList().add(binList.get(listB.get(random)).getItemList().get(i));
+                        binList.get(listB.get(random)).getItemList().remove(binList.get(listB.get(random)).getItemList().get(i));
+                        trouve = true;
+                        break;
+                    }
+                }
+            }
+            listB.remove(listB.get(random));
+            if(!listB.isEmpty()){
+                random = r.nextInt(listB.size());
+            }
+        }
+        if(!trouve){
+            System.out.println("Il est impossible de déplacer un item d'un bin dans un autre bin");
+        }
+    }
+
 
     public static void main(String[] args) {
         testAllFilesWithFirstFitDecreasing();
@@ -269,7 +300,9 @@ public class main {
 //        System.out.println("Nombre de bin : " + binList.size());
 //        calculBorneInferieure();
 //        System.out.println("Borne inférieure : " + borneInferieur);
-//        //afficherBin();
+//        afficherBin();
+//        voisinageA();
+//        afficherBin();
 //        lireFichier("src/data/binpack1d_01.txt");
 //        linearSolver();
 
