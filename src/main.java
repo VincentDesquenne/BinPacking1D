@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Array;
+import java.sql.SQLOutput;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -209,11 +210,8 @@ public class main {
             System.out.println("----------------------");
             afficherBin();
             System.out.println("----------------------");
-            voisinageA();
-            System.out.println("Voisinage A : ");
-            System.out.println("----------------------");
-            afficherBin();
-            System.out.println("----------------------");
+            System.out.println(voisinageA());
+            System.out.println(voisinageB());
             //randomGenerateA();
             //System.out.println("Générateur aléatoire A : " + binList.size());
 
@@ -263,19 +261,17 @@ public class main {
         }
     }
 
-    public static void voisinageA(){
+    public static String voisinageA(){
         Random r = new Random();
         ArrayList<Integer> listB = new ArrayList<>(binList.keySet());
         int random = r.nextInt(listB.size());
-        boolean trouve = false;
-        while(!trouve && !listB.isEmpty()){
+        while(!listB.isEmpty()){
             for(int i=0; i<binList.get(listB.get(random)).getItemList().size(); i++){
-                for(int j = 1; j<binList.keySet().size(); j++){
+                for(int j = 1; j<binList.keySet().size()+1; j++){
                     if(binList.get(j).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + binList.get(listB.get(random)).getItemList().get(i) <= tailleBin && binList.get(j) != binList.get(listB.get(random))){
                         binList.get(j).getItemList().add(binList.get(listB.get(random)).getItemList().get(i));
                         binList.get(listB.get(random)).getItemList().remove(binList.get(listB.get(random)).getItemList().get(i));
-                        trouve = true;
-                        break;
+                        return "L'item " + binList.get(j).getItemList().get(binList.get(j).getItemList().size()-1) + " du bin " + listB.get(random) + " a été déplacé dans le bin " + j;
                     }
                 }
             }
@@ -284,9 +280,38 @@ public class main {
                 random = r.nextInt(listB.size());
             }
         }
-        if(!trouve){
-            System.out.println("Il est impossible de déplacer un item d'un bin dans un autre bin");
+        return "Il est impossible de déplacer un item d'un bin dans un autre bin";
+
+    }
+
+    public static String voisinageB(){
+        Random r = new Random();
+        ArrayList<Integer> listB = new ArrayList<>(binList.keySet());
+        int random = r.nextInt(listB.size());
+        while(!listB.isEmpty()){
+            for(int i=0; i<binList.get(listB.get(random)).getItemList().size(); i++){
+                for(int j = 1; j<binList.keySet().size(); j++){
+                    for(int k = 0; k<binList.get(j).getItemList().size(); k++){
+                        if(binList.get(j).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + binList.get(listB.get(random)).getItemList().get(i) - binList.get(j).getItemList().get(k) <= tailleBin && binList.get(j) != binList.get(listB.get(random))){
+                            if(binList.get(listB.get(random)).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) - binList.get(listB.get(random)).getItemList().get(i) + binList.get(j).getItemList().get(k) <= tailleBin && binList.get(listB.get(random)).getItemList().get(i).intValue() != binList.get(j).getItemList().get(k).intValue()){
+                                binList.get(j).getItemList().add(binList.get(listB.get(random)).getItemList().get(i));
+                                binList.get(listB.get(random)).getItemList().add(binList.get(j).getItemList().get(k));
+                                binList.get(listB.get(random)).getItemList().remove(binList.get(listB.get(random)).getItemList().get(i));
+                                binList.get(j).getItemList().remove(k);
+                                return "L'item " + binList.get(listB.get(random)).getItemList().get(binList.get(listB.get(random)).getItemList().size()-1) + " du bin " + j + " a été déplacé dans le bin " + listB.get(random) + "\n" +
+                                "Inversement : l'item " + binList.get(j).getItemList().get(binList.get(j).getItemList().size()-1) + " du bin " + listB.get(random) + " a été déplacé dans le bin " + j;
+                            }
+                        }
+                    }
+                }
+            }
+            listB.remove(listB.get(random));
+            if(!listB.isEmpty()){
+                random = r.nextInt(listB.size());
+            }
         }
+        return "Il est impossible d'échanger deux items de deux bins différents";
+
     }
 
 
