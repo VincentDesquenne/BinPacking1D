@@ -1,20 +1,12 @@
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Array;
-import java.sql.SQLOutput;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-import java.lang.*;
-
 import com.google.ortools.Loader;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
+
+import java.io.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class main {
     private static BufferedReader bufferedR;
@@ -118,6 +110,19 @@ public class main {
             for (int i = 0; i < mapentry.getValue().getItemList().size(); i++) {
                 System.out.println("ITEM : " + mapentry.getValue().getItemList().get(i));
             }
+            System.out.println("----------------------");
+        }
+    }
+
+    public static void afficherBin2(HashMap<Integer, Bin> binn) {
+        int compteur = 0;
+        for (Map.Entry<Integer, Bin> mapentry : binn.entrySet()) {
+            compteur = 0;
+            for (int i = 0; i < mapentry.getValue().getItemList().size(); i++) {
+                System.out.println("ITEM : " + mapentry.getValue().getItemList().get(i));
+                compteur += mapentry.getValue().getItemList().get(i);
+            }
+            System.out.println("SOMME RESTANTE : " + (tailleBin - compteur));
             System.out.println("----------------------");
         }
     }
@@ -261,22 +266,22 @@ public class main {
         }
     }
 
-    public static String voisinageA(){
+    public static String voisinageA() {
         Random r = new Random();
         ArrayList<Integer> listB = new ArrayList<>(binList.keySet());
         int random = r.nextInt(listB.size());
-        while(!listB.isEmpty()){
-            for(int i=0; i<binList.get(listB.get(random)).getItemList().size(); i++){
-                for(int j = 1; j<binList.keySet().size()+1; j++){
-                    if(binList.get(j).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + binList.get(listB.get(random)).getItemList().get(i) <= tailleBin && binList.get(j) != binList.get(listB.get(random))){
+        while (!listB.isEmpty()) {
+            for (int i = 0; i < binList.get(listB.get(random)).getItemList().size(); i++) {
+                for (int j = 1; j < binList.keySet().size() + 1; j++) {
+                    if (binList.get(j).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + binList.get(listB.get(random)).getItemList().get(i) <= tailleBin && binList.get(j) != binList.get(listB.get(random))) {
                         binList.get(j).getItemList().add(binList.get(listB.get(random)).getItemList().get(i));
                         binList.get(listB.get(random)).getItemList().remove(binList.get(listB.get(random)).getItemList().get(i));
-                        return "L'item " + binList.get(j).getItemList().get(binList.get(j).getItemList().size()-1) + " du bin " + listB.get(random) + " a été déplacé dans le bin " + j;
+                        return "L'item " + binList.get(j).getItemList().get(binList.get(j).getItemList().size() - 1) + " du bin " + listB.get(random) + " a été déplacé dans le bin " + j;
                     }
                 }
             }
             listB.remove(listB.get(random));
-            if(!listB.isEmpty()){
+            if (!listB.isEmpty()) {
                 random = r.nextInt(listB.size());
             }
         }
@@ -284,29 +289,29 @@ public class main {
 
     }
 
-    public static String voisinageB(){
+    public static String voisinageB() {
         Random r = new Random();
         ArrayList<Integer> listB = new ArrayList<>(binList.keySet());
         int random = r.nextInt(listB.size());
-        while(!listB.isEmpty()){
-            for(int i=0; i<binList.get(listB.get(random)).getItemList().size(); i++){
-                for(int j = 1; j<binList.keySet().size(); j++){
-                    for(int k = 0; k<binList.get(j).getItemList().size(); k++){
-                        if(binList.get(j).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + binList.get(listB.get(random)).getItemList().get(i) - binList.get(j).getItemList().get(k) <= tailleBin && binList.get(j) != binList.get(listB.get(random))){
-                            if(binList.get(listB.get(random)).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) - binList.get(listB.get(random)).getItemList().get(i) + binList.get(j).getItemList().get(k) <= tailleBin && binList.get(listB.get(random)).getItemList().get(i).intValue() != binList.get(j).getItemList().get(k).intValue()){
+        while (!listB.isEmpty()) {
+            for (int i = 0; i < binList.get(listB.get(random)).getItemList().size(); i++) {
+                for (int j = 1; j < binList.keySet().size(); j++) {
+                    for (int k = 0; k < binList.get(j).getItemList().size(); k++) {
+                        if (binList.get(j).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + binList.get(listB.get(random)).getItemList().get(i) - binList.get(j).getItemList().get(k) <= tailleBin && binList.get(j) != binList.get(listB.get(random))) {
+                            if (binList.get(listB.get(random)).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) - binList.get(listB.get(random)).getItemList().get(i) + binList.get(j).getItemList().get(k) <= tailleBin && binList.get(listB.get(random)).getItemList().get(i).intValue() != binList.get(j).getItemList().get(k).intValue()) {
                                 binList.get(j).getItemList().add(binList.get(listB.get(random)).getItemList().get(i));
                                 binList.get(listB.get(random)).getItemList().add(binList.get(j).getItemList().get(k));
                                 binList.get(listB.get(random)).getItemList().remove(binList.get(listB.get(random)).getItemList().get(i));
                                 binList.get(j).getItemList().remove(k);
-                                return "L'item " + binList.get(listB.get(random)).getItemList().get(binList.get(listB.get(random)).getItemList().size()-1) + " du bin " + j + " a été déplacé dans le bin " + listB.get(random) + "\n" +
-                                "Inversement : l'item " + binList.get(j).getItemList().get(binList.get(j).getItemList().size()-1) + " du bin " + listB.get(random) + " a été déplacé dans le bin " + j;
+                                return "L'item " + binList.get(listB.get(random)).getItemList().get(binList.get(listB.get(random)).getItemList().size() - 1) + " du bin " + j + " a été déplacé dans le bin " + listB.get(random) + "\n" +
+                                        "Inversement : l'item " + binList.get(j).getItemList().get(binList.get(j).getItemList().size() - 1) + " du bin " + listB.get(random) + " a été déplacé dans le bin " + j;
                             }
                         }
                     }
                 }
             }
             listB.remove(listB.get(random));
-            if(!listB.isEmpty()){
+            if (!listB.isEmpty()) {
                 random = r.nextInt(listB.size());
             }
         }
@@ -314,9 +319,130 @@ public class main {
 
     }
 
+    public static int calculerFitness(HashMap<Integer, Bin> binHashMap) {
+        int somme = 0;
+        int addition = 0;
+        for (Map.Entry<Integer, Bin> mapentry : binHashMap.entrySet()) {
+            addition = 0;
+            for (int i = 0; i < mapentry.getValue().getItemList().size(); i++) {
+                addition += mapentry.getValue().getItemList().get(i);
+            }
+            somme += addition * addition;
+        }
+        return somme;
+    }
+
+    public static ArrayList<Integer> getRandomElement(ArrayList<Integer> list) {
+        ArrayList<Integer> listReturn = new ArrayList<Integer>();
+        Random r = new Random();
+        int rand = r.nextInt(list.size());
+        int item = list.get(rand);
+        listReturn.add(rand);
+        listReturn.add(item);
+        return listReturn;
+    }
+
+    public static boolean deplacementItemVersBin(Bin ancienBin, ArrayList<Integer> item, Bin nouveauBin) {
+        if (nouveauBin.getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + item.get(1) <= tailleBin && ancienBin != nouveauBin) {//on verifie que l'item peut intégrer l'autre bin
+            int indice1 = item.get(0);
+            if (ancienBin.getItemList().size() == 0) {
+
+            }
+            ancienBin.getItemList().remove(indice1); //on supprime l'item de l'ancien bin
+            nouveauBin.getItemList().add(item.get(1)); //on ajoute l'item dans l'autre bin
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean echangeItem(Bin bin1, ArrayList<Integer> item1, Bin bin2, ArrayList<Integer> item2) {
+        if (bin1.getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + item2.get(1) - item1.get(1) <= tailleBin && bin1 != bin2) {
+            if (bin2.getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + item1.get(1) - item2.get(1) <= tailleBin) {
+                int indice1 = item1.get(0);
+                int indice2 = item2.get(0);
+                bin1.getItemList().remove(indice1);
+                bin2.getItemList().remove(indice2);
+                bin1.getItemList().add(item2.get(1));
+                bin2.getItemList().add(item1.get(1));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static HashMap<Integer, Bin> voisin(HashMap<Integer, Bin> listBin) {
+        Random r = new Random();
+        //int random = r.nextInt(listB.size());
+        ArrayList<Integer> listB = new ArrayList<>(listBin.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList()));
+        while (true) {
+            int indiceBin = getRandomElement(listB).get(1);
+            ArrayList<Integer> listItem1 = listBin.get(indiceBin).getItemList();
+            ArrayList<Integer> randomItem = getRandomElement(listItem1);
+            int indiceBin2 = getRandomElement(listB).get(1);
+            ArrayList<Integer> listItem2 = listBin.get(indiceBin2).getItemList();
+            ArrayList<Integer> randomItem2 = getRandomElement(listItem2);
+            int randomMoveOrChange = r.nextInt(2);
+            if (randomMoveOrChange == 0) {
+                if (deplacementItemVersBin(listBin.get(indiceBin), randomItem, listBin.get(indiceBin2))) {
+                    if (listBin.get(indiceBin).getItemList().isEmpty()) {
+                        listBin.remove(indiceBin);
+                    }
+                    return listBin;
+                }
+            } else {
+                if (echangeItem(listBin.get(indiceBin), randomItem, listBin.get(indiceBin2), randomItem2)) {
+                    return listBin;
+                }
+            }
+        }
+    }
+
+    public static HashMap<Integer, Bin> algoRecuitSimulé() {
+        ArrayList<HashMap<Integer, Bin>> x = new ArrayList<>();
+        x.add(binList);
+        HashMap<Integer, Bin> xMin = x.get(0);
+        ArrayList<Double> temperature = new ArrayList<>();
+        temperature.add(10000.0);
+        int i = 0;
+        ArrayList<Integer> fitness = new ArrayList<>();
+        fitness.add(calculerFitness(x.get(i)));
+        int fitnessMin = fitness.get(0);
+
+        for (int k = 0; k < 20; k++) {
+            for (int l = 1; l < 10; l++) {
+                HashMap<Integer, Bin> y = voisin(x.get(i));
+                int deltaF = calculerFitness(y) - calculerFitness(x.get(i));
+                fitness.add(calculerFitness(y));
+                if (deltaF <= 0) {
+                    x.add(i + 1, y);
+                    if (fitness.get(i + 1) < fitnessMin) {
+                        xMin = x.get(i + 1);
+                        fitnessMin = fitness.get(i + 1);
+                    }
+
+                } else {
+                    double p = 0.7;
+                    if (p <= Math.exp(-deltaF / temperature.get(k))) {
+                        x.add(i + 1, y);
+                    } else {
+                        x.add(i + 1, x.get(i));
+                    }
+                }
+                i = i + 1;
+
+            }
+            temperature.add(k + 1, 0.9 * temperature.get(k));
+        }
+        System.out.println("FINI");
+        afficherBin2(xMin);
+        System.out.println("FITNESS INITIAL : " + fitness.get(0));
+        System.out.println("FITNESS MIN : " + fitnessMin);
+        return xMin;
+    }
+
 
     public static void main(String[] args) {
-        testAllFilesWithFirstFitDecreasing();
+//        testAllFilesWithFirstFitDecreasing();
 //        System.out.println("Quel fichier voulez vous tester ?");
 //        Scanner sc = new Scanner(System.in);
 //        String fichier = sc.nextLine();
@@ -328,7 +454,10 @@ public class main {
 //        afficherBin();
 //        voisinageA();
 //        afficherBin();
-//        lireFichier("src/data/binpack1d_01.txt");
+        lireFichier("src/data/binpack1d_02.txt");
+        firstFitDecreasing();
+        afficherBin2(binList);
+        algoRecuitSimulé();
 //        linearSolver();
 
     }
