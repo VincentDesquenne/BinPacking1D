@@ -395,18 +395,38 @@ public class main {
         }
     }
 
+    public static HashMap<Integer, Bin> copyHashMap(HashMap<Integer, Bin> bins) {
+        HashMap<Integer, Bin> hashMapReturn = new HashMap<Integer, Bin>();
+        for (int id : bins.keySet()) {
+            hashMapReturn.put(id, bins.get(id));
+            for (int i = 0; i < bins.get(id).getItemList().size(); i++) {
+                hashMapReturn.get(id).getItemList().add(bins.get(id).getItemList().get(i));
+            }
+            //hashMapReturn.get(id).setItemList(bins.get(id).getItemList());
+        }
+        return hashMapReturn;
+    }
+
     public static ArrayList<HashMap<Integer, Bin>> listerVoisinMove(HashMap<Integer, Bin> bins) {
         ArrayList<HashMap<Integer, Bin>> listX = new ArrayList<>();
-        for (int a = 1; a < bins.size()+1; a++) {
+        for (int a = 1; a < bins.size() + 1; a++) {
             for (int i = 0; i < bins.get(a).getItemList().size(); i++) {
-                for (int j = 1; j < bins.size()+1; j++) {
+                for (int j = 1; j < bins.size() + 1; j++) {
                     if (bins.get(j).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + bins.get(a).getItemList().get(i) <= tailleBin && a != j) {
-                        HashMap<Integer, Bin> listBin = new HashMap<Integer, Bin>(bins);
-                        listBin.get(a).getItemList().remove(i);
+                        HashMap<Integer, Bin> listBin = new HashMap<Integer, Bin>();
+                        listBin = (HashMap<Integer, Bin>) bins.clone();
+                        int tampon = bins.get(a).getItemList().get(i);
+                        ArrayList<Integer> listItem = new ArrayList<Integer>(bins.get(a).getItemList());
+                        ArrayList<Integer> listItem2 = new ArrayList<Integer>(bins.get(j).getItemList());
+                        Bin bin = new Bin(tailleBin, listItem);
+                        Bin bin2 = new Bin(tailleBin, listItem2);
+                        bin.getItemList().remove(i);
+                        bin2.getItemList().add(tampon);
+                        listBin.replace(a, bin);
+                        listBin.replace(j, bin2);
                         if (listBin.get(a).getItemList().isEmpty()) {
                             listBin.remove(a);
                         }
-                        listBin.get(j).getItemList().add(i);
                         listX.add(listBin);
                     }
                 }
@@ -423,11 +443,20 @@ public class main {
                     for (int k = 0; k < bins.get(j).getItemList().size(); k++) {
                         if (bins.get(j).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + bins.get(a).getItemList().get(i) - bins.get(j).getItemList().get(k) <= tailleBin && a != j) {
                             if (bins.get(a).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + bins.get(j).getItemList().get(k) - bins.get(a).getItemList().get(i) <= tailleBin) {
-                                HashMap<Integer, Bin> listBin = new HashMap<Integer, Bin>(bins);
-                                listBin.get(a).getItemList().remove(i);
-                                listBin.get(j).getItemList().remove(k);
-                                listBin.get(j).getItemList().add(i);
-                                listBin.get(a).getItemList().add(k);
+                                HashMap<Integer, Bin> listBin = new HashMap<Integer, Bin>();
+                                listBin = (HashMap<Integer, Bin>) bins.clone();
+                                int tampon1 = bins.get(a).getItemList().get(i);
+                                int tampon2 = bins.get(j).getItemList().get(k);
+                                ArrayList<Integer> listItem = new ArrayList<Integer>(bins.get(a).getItemList());
+                                ArrayList<Integer> listItem2 = new ArrayList<Integer>(bins.get(j).getItemList());
+                                Bin bin = new Bin(tailleBin, listItem);
+                                Bin bin2 = new Bin(tailleBin, listItem2);
+                                bin.getItemList().remove(i);
+                                bin.getItemList().add(tampon1);
+                                bin2.getItemList().remove(k);
+                                bin2.getItemList().add(tampon2);
+                                listBin.replace(a, bin);
+                                listBin.replace(j, bin2);
                                 listX.add(listBin);
                             }
                         }
@@ -479,6 +508,7 @@ public class main {
         afficherBin2(xMax);
         System.out.println("FITNESS INITIAL : " + fitness.get(0));
         System.out.println("FITNESS MAX : " + fitnessMax);
+        System.out.println("Nombre de bins : " + xMax.size());
         return xMax;
     }
 
@@ -495,7 +525,7 @@ public class main {
         int comparerFitness = 0;
         int deltaF = 0;
         ArrayList<HashMap<Integer, Bin>> c = new ArrayList<HashMap<Integer, Bin>>();
-        ArrayList<HashMap<Integer, Bin>> listTabou = new ArrayList<HashMap<Integer, Bin>>();
+        Queue<HashMap<Integer, Bin>> listTabou = new LinkedList<HashMap<Integer, Bin>>();
         for (i = 0; i < maxIteration; i++) {
             comparerFitness = 0;
             int randomMoveOrChange = r.nextInt(2);
@@ -519,15 +549,16 @@ public class main {
             x.add(i + 1, voisinFmax);
             deltaF = fitness.get(i + 1) - fitness.get(i);
             if (deltaF <= 0) {
-                //if(listTabou.size() < tailleListTabou){
+                if (listTabou.size() < tailleListTabou) {
                     listTabou.add(x.get(i + 1));
-                //} else {
-
-                //}
+                } else {
+                    listTabou.remove();
+                    listTabou.add(x.get(i + 1));
+                }
             }
-            if (fitness.get(i+1) > fitnessMax) {
-                xMax = x.get(i+1);
-                fitnessMax = fitness.get(i+1);
+            if (fitness.get(i + 1) > fitnessMax) {
+                xMax = x.get(i + 1);
+                fitnessMax = fitness.get(i + 1);
             }
 
         }
@@ -535,6 +566,7 @@ public class main {
         afficherBin2(xMax);
         System.out.println("FITNESS INITIAL : " + fitness.get(0));
         System.out.println("FITNESS MAX : " + fitnessMax);
+        System.out.println("Nombre de bins : " + xMax.size());
         return xMax;
     }
 
@@ -552,11 +584,11 @@ public class main {
 //        afficherBin();
 //        voisinageA();
 //        afficherBin();
-        lireFichier("src/data/binpack1d_03.txt");
+        lireFichier("src/data/binpack1d_02.txt");
         firstFitDecreasing();
         afficherBin2(binList);
-        algoRecuitSimulé();
-        //algoTabuSearch(20,5);
+        //algoRecuitSimulé();
+        algoTabuSearch(10, 10);
 //        linearSolver();
 
     }
