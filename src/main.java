@@ -218,7 +218,7 @@ public class main {
 
             // ALGO CHOISIS
             algoRecuitSimulé(10000.0, 20, 0.9);
-//          algoTabuSearch(10, 100);
+//          algoTabuSearch(10, 20);
             System.out.println("----------------------");
             System.out.println("Nombre de bin : " + binList.size());
             calculBorneInferieure();
@@ -586,7 +586,7 @@ public class main {
         for (Map.Entry<Integer, Bin> mapentry : xMax.entrySet()) {
             if (mapentry.getValue().getItemList().size() == 0) {
 
-            } else compteur += mapentry.getValue().getItemList().size();
+            } else compteur += 1;
         }
         System.out.println("FITNESS INITIAL : " + fitness.get(0));
         System.out.println("FITNESS MAX : " + fitnessMax);
@@ -607,7 +607,7 @@ public class main {
 //        firstFitDecreasing();
 //        linearSolver();
 //        algoRecuitSimulé(10000.0, 20, 0.9);
-//        algoTabuSearch(10, 100);
+//        algoTabuSearch(10, 20);
 
     }
 }
