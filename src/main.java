@@ -5,20 +5,19 @@ import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.io.*;
-import java.lang.reflect.Array;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class main {
+    private static final int timeLimit = 800000;
     private static BufferedReader bufferedR;
-    private static Bin bin;
     private static HashMap<Integer, Bin> binList = new HashMap<Integer, Bin>();
     private static boolean initDonné = false;
-    private static int tailleBin = 0; // En attendant comme j'ai pas la classe
-    private static int nbItems = 0; // tu changeras avec la classe
+    private static int tailleBin = 0;
+    private static int nbItems = 0;
     private static ArrayList<Integer> itemList = new ArrayList<>();
     private static int borneInferieur = 0;
-    private static int timeLimit = 800000;
 
     private static void reset() {
         tailleBin = 0;
@@ -31,7 +30,7 @@ public class main {
     public static void lireFichier(String fichier) {
         try {
             reset();
-            bufferedR = new BufferedReader(new InputStreamReader(new FileInputStream(fichier), "utf-8"));
+            bufferedR = new BufferedReader(new InputStreamReader(new FileInputStream(fichier), StandardCharsets.UTF_8));
             String line;
             String[] mots = null;
             while ((line = bufferedR.readLine()) != null) {
@@ -106,7 +105,6 @@ public class main {
     }
 
     public static void afficherBin() {
-        int compteur = 0;
         for (Map.Entry<Integer, Bin> mapentry : binList.entrySet()) {
             for (int i = 0; i < mapentry.getValue().getItemList().size(); i++) {
                 System.out.println("ITEM : " + mapentry.getValue().getItemList().get(i));
@@ -188,7 +186,7 @@ public class main {
         }
     }
 
-    public static void testAllFilesWithFirstFitDecreasing() {
+    public static void testAllFiles() {
         ArrayList<String> nomFichierList = new ArrayList<>();
         nomFichierList.add("00");
         nomFichierList.add("01");
@@ -204,34 +202,33 @@ public class main {
         nomFichierList.add("21");
         nomFichierList.add("31");
         for (int i = 0; i < nomFichierList.size(); i++) {
-            //System.out.println("Test avec FirstFitDecreasing pour le fichier : binpack1d_" + nomFichierList.get(i));
-            System.out.println("Test avec FirstFitRandom pour le fichier : binpack1d_" + nomFichierList.get(i));
+            System.out.println("Test pour le fichier : binpack1d_" + nomFichierList.get(i));
             lireFichier("src/data/binpack1d_" + nomFichierList.get(i) + ".txt");
+
+            // METHODE DE REMPLISSAGE
+//          firstFitRandom();
+//          randomGenerateA();
             firstFitDecreasing();
-            //firstFitRandom();
+
+            // ALGO CHOISIS
+            algoRecuitSimulé(10000.0, 20, 0.9);
+//          algoTabuSearch(10, 100);
             System.out.println("----------------------");
             System.out.println("Nombre de bin : " + binList.size());
             calculBorneInferieure();
             System.out.println("Borne inférieure : " + borneInferieur);
             System.out.println("----------------------");
-            afficherBin();
-            System.out.println("----------------------");
-            //System.out.println(deplacementAleatoire());
-            //System.out.println(echangeAleatoire());
-            //randomGenerateA();
-            //System.out.println("Générateur aléatoire A : " + binList.size());
-
         }
     }
 
     public static void randomGenerateA() {
         int compteur = 1;
         for (int i = 0; i < nbItems; i++) {
-            compteur++;
             Bin newBin = new Bin(tailleBin);
             newBin.setItemList(new ArrayList<>());
             newBin.getItemList().add(itemList.get(i));
             binList.put(compteur, newBin);
+            compteur++;
         }
     }
 
@@ -274,7 +271,8 @@ public class main {
         while (!listB.isEmpty()) {
             for (int i = 0; i < binList.get(listB.get(random)).getItemList().size(); i++) {
                 for (int j = 1; j < binList.keySet().size() + 1; j++) {
-                    if (binList.get(j).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + binList.get(listB.get(random)).getItemList().get(i) <= tailleBin && binList.get(j) != binList.get(listB.get(random))) {
+                    if (binList.get(j).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + binList.get(listB.get(random)).getItemList().get(i) <=
+                            tailleBin && binList.get(j) != binList.get(listB.get(random))) {
                         binList.get(j).getItemList().add(binList.get(listB.get(random)).getItemList().get(i));
                         binList.get(listB.get(random)).getItemList().remove(binList.get(listB.get(random)).getItemList().get(i));
                         return "L'item " + binList.get(j).getItemList().get(binList.get(j).getItemList().size() - 1) + " du bin " + listB.get(random) + " a été déplacé dans le bin " + j;
@@ -298,14 +296,21 @@ public class main {
             for (int i = 0; i < binList.get(listB.get(random)).getItemList().size(); i++) {
                 for (int j = 1; j < binList.keySet().size(); j++) {
                     for (int k = 0; k < binList.get(j).getItemList().size(); k++) {
-                        if (binList.get(j).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + binList.get(listB.get(random)).getItemList().get(i) - binList.get(j).getItemList().get(k) <= tailleBin && binList.get(j) != binList.get(listB.get(random))) {
-                            if (binList.get(listB.get(random)).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) - binList.get(listB.get(random)).getItemList().get(i) + binList.get(j).getItemList().get(k) <= tailleBin && binList.get(listB.get(random)).getItemList().get(i).intValue() != binList.get(j).getItemList().get(k).intValue()) {
+                        if (binList.get(j).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) +
+                                binList.get(listB.get(random)).getItemList().get(i) - binList.get(j).getItemList().get(k)
+                                <= tailleBin && binList.get(j) != binList.get(listB.get(random))) {
+                            if (binList.get(listB.get(random)).getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) -
+                                    binList.get(listB.get(random)).getItemList().get(i) + binList.get(j).getItemList().get(k)
+                                    <= tailleBin && binList.get(listB.get(random)).getItemList().get(i).intValue()
+                                    != binList.get(j).getItemList().get(k).intValue()) {
                                 binList.get(j).getItemList().add(binList.get(listB.get(random)).getItemList().get(i));
                                 binList.get(listB.get(random)).getItemList().add(binList.get(j).getItemList().get(k));
                                 binList.get(listB.get(random)).getItemList().remove(binList.get(listB.get(random)).getItemList().get(i));
                                 binList.get(j).getItemList().remove(k);
-                                return "L'item " + binList.get(listB.get(random)).getItemList().get(binList.get(listB.get(random)).getItemList().size() - 1) + " du bin " + j + " a été déplacé dans le bin " + listB.get(random) + "\n" +
-                                        "Inversement : l'item " + binList.get(j).getItemList().get(binList.get(j).getItemList().size() - 1) + " du bin " + listB.get(random) + " a été déplacé dans le bin " + j;
+                                return "L'item " + binList.get(listB.get(random)).getItemList().get(binList.get(listB.get(random)).getItemList().size() - 1)
+                                        + " du bin " + j + " a été déplacé dans le bin " + listB.get(random) + "\n" +
+                                        "Inversement : l'item " + binList.get(j).getItemList().get(binList.get(j).getItemList().size() - 1)
+                                        + " du bin " + listB.get(random) + " a été déplacé dans le bin " + j;
                             }
                         }
                     }
@@ -402,7 +407,6 @@ public class main {
             for (int i = 0; i < bins.get(id).getItemList().size(); i++) {
                 hashMapReturn.get(id).getItemList().add(bins.get(id).getItemList().get(i));
             }
-            //hashMapReturn.get(id).setItemList(bins.get(id).getItemList());
         }
         return hashMapReturn;
     }
@@ -424,9 +428,6 @@ public class main {
                         bin2.getItemList().add(tampon);
                         listBin.replace(a, bin);
                         listBin.replace(j, bin2);
-                        if (listBin.get(a).getItemList().isEmpty()) {
-                            listBin.remove(a);
-                        }
                         listX.add(listBin);
                     }
                 }
@@ -468,19 +469,20 @@ public class main {
     }
 
 
-    public static HashMap<Integer, Bin> algoRecuitSimulé() {
+    public static HashMap<Integer, Bin> algoRecuitSimulé(double tempInital, int nbIteration, double mu) {
         ArrayList<HashMap<Integer, Bin>> x = new ArrayList<>();
         x.add(binList);
         HashMap<Integer, Bin> xMax = x.get(0);
         ArrayList<Double> temperature = new ArrayList<>();
-        temperature.add(10000.0);
+        temperature.add(tempInital);
         int i = 0;
         ArrayList<Integer> fitness = new ArrayList<>();
         fitness.add(calculerFitness(x.get(i)));
         int fitnessMax = fitness.get(0);
-
-        for (int k = 0; k < 20; k++) {
-            for (int l = 1; l < 10; l++) {
+        Random r = new Random();
+        double p = 0.0;
+        for (int k = 0; k < nbIteration; k++) {
+            for (int l = 1; l < nbIteration; l++) {
                 HashMap<Integer, Bin> y = voisin(x.get(i));
                 int deltaF = calculerFitness(y) - calculerFitness(x.get(i));
                 fitness.add(calculerFitness(y));
@@ -492,7 +494,7 @@ public class main {
                     }
 
                 } else {
-                    double p = 0.7;
+                    p = r.nextDouble();
                     if (p <= Math.exp(-deltaF / temperature.get(k))) {
                         x.add(i + 1, y);
                     } else {
@@ -502,10 +504,8 @@ public class main {
                 i = i + 1;
 
             }
-            temperature.add(k + 1, 0.9 * temperature.get(k));
+            temperature.add(k + 1, mu * temperature.get(k));
         }
-        System.out.println("FINI");
-        afficherBin2(xMax);
         System.out.println("FITNESS INITIAL : " + fitness.get(0));
         System.out.println("FITNESS MAX : " + fitnessMax);
         System.out.println("Nombre de bins : " + xMax.size());
@@ -535,9 +535,7 @@ public class main {
                 c = listerVoisinSwitch(x.get(i));
             }
             for (HashMap<Integer, Bin> tabou : listTabou) {
-                if (c.contains(tabou)) {
-                    c.remove(tabou);
-                }
+                c.remove(tabou);
             }
             for (HashMap<Integer, Bin> voisin : c) {
                 if (calculerFitness(voisin) > comparerFitness) {
@@ -562,33 +560,29 @@ public class main {
             }
 
         }
-        System.out.println("FINI");
-        afficherBin2(xMax);
+        int compteur = 0;
+        for (Map.Entry<Integer, Bin> mapentry : xMax.entrySet()) {
+            if (mapentry.getValue().getItemList().size() == 0) {
+
+            } else compteur += mapentry.getValue().getItemList().size();
+        }
         System.out.println("FITNESS INITIAL : " + fitness.get(0));
         System.out.println("FITNESS MAX : " + fitnessMax);
-        System.out.println("Nombre de bins : " + xMax.size());
+        System.out.println("Nombre de bins : " + compteur);
         return xMax;
     }
 
 
     public static void main(String[] args) {
-//        testAllFilesWithFirstFitDecreasing();
+        testAllFiles();
 //        System.out.println("Quel fichier voulez vous tester ?");
 //        Scanner sc = new Scanner(System.in);
 //        String fichier = sc.nextLine();
 //        lireFichier("src/data/" + fichier + ".txt");
-//        firstFitDecreasing();
-//        System.out.println("Nombre de bin : " + binList.size());
 //        calculBorneInferieure();
 //        System.out.println("Borne inférieure : " + borneInferieur);
 //        afficherBin();
-//        voisinageA();
-//        afficherBin();
-        lireFichier("src/data/binpack1d_02.txt");
-        firstFitDecreasing();
-        afficherBin2(binList);
-        //algoRecuitSimulé();
-        algoTabuSearch(10, 10);
+//        firstFitDecreasing();
 //        linearSolver();
 
     }
