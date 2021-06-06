@@ -61,6 +61,8 @@ public class main {
 
     }
 
+    //QUESTION 1
+
     public static void calculBorneInferieure() {
         int sommeTailleItems = itemList.stream().collect(Collectors.summingInt(Integer::intValue));
         borneInferieur = sommeTailleItems / tailleBin;
@@ -68,6 +70,8 @@ public class main {
             borneInferieur++;
         }
     }
+
+    //QUESTION 2
 
     public static void firstFitDecreasing() {
         int compteur = 1;
@@ -125,6 +129,8 @@ public class main {
             System.out.println("----------------------");
         }
     }
+
+    //QUESTION 3
 
     public static void linearSolver() {
         String str;
@@ -221,6 +227,8 @@ public class main {
         }
     }
 
+    //QUESTION 4(A)
+
     public static void randomGenerateA() {
         int compteur = 1;
         for (int i = 0; i < nbItems; i++) {
@@ -231,6 +239,8 @@ public class main {
             compteur++;
         }
     }
+
+    //QUESTION 4(B)
 
     public static void firstFitRandom() {
         int compteur = 1;
@@ -264,6 +274,8 @@ public class main {
         }
     }
 
+    //QUESTION 5(A)
+
     public static String deplacementAleatoire() {
         Random r = new Random();
         ArrayList<Integer> listB = new ArrayList<>(binList.keySet());
@@ -287,6 +299,8 @@ public class main {
         return "Il est impossible de déplacer un item d'un bin dans un autre bin";
 
     }
+
+    //QUESTION 5(B)
 
     public static String echangeAleatoire() {
         Random r = new Random();
@@ -348,6 +362,8 @@ public class main {
         return listReturn;
     }
 
+    //QUESTION 5(A)
+
     public static boolean deplacementItemVersBin(Bin ancienBin, ArrayList<Integer> item, Bin nouveauBin) {
         if (nouveauBin.getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + item.get(1) <= tailleBin && ancienBin != nouveauBin) {//on verifie que l'item peut intégrer l'autre bin
             int indice1 = item.get(0);
@@ -357,6 +373,8 @@ public class main {
         }
         return false;
     }
+
+    //QUESTION 5(B)
 
     public static boolean echangeItem(Bin bin1, ArrayList<Integer> item1, Bin bin2, ArrayList<Integer> item2) {
         if (bin1.getItemList().stream().collect(Collectors.summingInt(Integer::intValue)) + item2.get(1) - item1.get(1) <= tailleBin && bin1 != bin2) {
@@ -469,6 +487,8 @@ public class main {
     }
 
 
+    //QUESTION 6
+
     public static HashMap<Integer, Bin> algoRecuitSimulé(double tempInital, int nbIteration, double mu) {
         ArrayList<HashMap<Integer, Bin>> x = new ArrayList<>();
         x.add(binList);
@@ -511,6 +531,8 @@ public class main {
         System.out.println("Nombre de bins : " + xMax.size());
         return xMax;
     }
+
+    //QUESTION 7
 
     public static HashMap<Integer, Bin> algoTabuSearch(int tailleListTabou, int maxIteration) {
         ArrayList<HashMap<Integer, Bin>> x = new ArrayList<>();
@@ -584,6 +606,8 @@ public class main {
 //        afficherBin();
 //        firstFitDecreasing();
 //        linearSolver();
+//        algoRecuitSimulé(10000.0, 20, 0.9);
+//        algoTabuSearch(10, 100);
 
     }
 }
